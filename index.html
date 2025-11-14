@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Local Link - LAN Sharing</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      max-width: 900px;
+      margin: auto;
+      padding: 16px;
+      background: #f9f9f9;
+    }
+
+    h2, h3 {
+      text-align: center;
+      color: #333;
+    }
+
+    #messages, #files {
+      border: 1px solid #ccc;
+      padding: 10px;
+      height: 200px;
+      overflow-y: auto;
+      background: #fff;
+      margin-bottom: 10px;
+      border-radius: 8px;
+    }
+
+    input, button {
+      margin: 4px;
+      padding: 6px 10px;
+      border-radius: 4px;
+      border: 1px solid #ccc;
+    }
+
+    button {
+      cursor: pointer;
+      background: #007bff;
+      color: white;
+      border: none;
+    }
+
+    button:hover {
+      background: #0056b3;
+    }
+
+    #chatContainer, #fileContainer {
+      margin-bottom: 20px;
+      background: #fff;
+      padding: 12px;
+      border-radius: 8px;
+      box-shadow: 0px 2px 5px rgba(0,0,0,0.1);
+    }
+
+    ul {
+      padding-left: 0;
+      list-style: none;
+    }
+
+    a {
+      text-decoration: none;
+      color: #007bff;
+    }
+
+    a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <h2>Local Link - LAN Sharing</h2>
+
+  <div>
+    <label>Room: <input id="room" value="lobby"></label>
+    <button id="joinBtn">Join Room</button>
+  </div>
+
+  <div id="chatContainer">
+    <h3>Chat</h3>
+    <div id="messages"></div>
+    <input id="name" placeholder="Your name" />
+    <input id="message" placeholder="Type message..." />
+    <button id="sendBtn">Send Message</button>
+  </div>
+
+  <div id="fileContainer">
+    <h3>Share File</h3>
+    <input type="file" id="fileInput" />
+    <button id="uploadBtn">Upload File</button>
+    <ul id="files"></ul>
+  </div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="client.js"></script>
+</body>
+</html>
