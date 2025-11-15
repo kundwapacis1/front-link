@@ -1,85 +1,47 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title> 🌐 Local Link - LAN Sharing</title>
-  <link rel="stylesheet" href="styles.css" />
+  <title>Local Link - LAN Sharing</title>
+  <link rel="stylesheet" href="styles.css">
   <style>
-    body {
-      font-family: 'Segoe UI', sans-serif;
-      max-width: 900px;
-      margin: auto;
-      padding: 16px;
-      background: #f5f5f5;
-    }
-    h2 {
-      text-align: center;
-      color: #333;
-    }
-    #chatContainer, #fileContainer {
-      background: #fff;
-      padding: 16px;
-      margin-top: 20px;
-      border-radius: 10px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-    }
-    #messages {
-      border:1px solid #ccc;
-      padding:8px;
-      height:200px;
-      overflow:auto;
-      margin-bottom:10px;
-      background: #fafafa;
-    }
-    #files {
-      list-style:none;
-      padding-left:0;
-    }
-    input, button {
-      margin:4px;
-      padding:8px;
-      border-radius: 5px;
-      border:1px solid #ccc;
-    }
-    button {
-      cursor: pointer;
-      background-color: #4CAF50;
-      color:white;
-      border:none;
-    }
-    button:hover {
-      background-color: #45a049;
-    }
-    ul li a {
-      color: #333;
-      text-decoration: none;
-    }
-    ul li a:hover {
-      text-decoration: underline;
-    }
+    body { font-family: 'Segoe UI', sans-serif; background: #f5f6fa; margin: 0; padding: 0; display: flex; justify-content: center; align-items: flex-start; min-height: 100vh; }
+    .container { max-width: 800px; width: 100%; margin-top: 30px; background: white; padding: 20px; border-radius: 12px; box-shadow: 0 0 15px rgba(0,0,0,0.1); }
+    h1, h2 { text-align: center; color: #2f3640; }
+    #messages { border:1px solid #ccc; padding:10px; height:250px; overflow-y:auto; margin-bottom:10px; background:#f1f2f6; border-radius:6px; }
+    #files { list-style:none; padding-left:0; }
+    input, button { padding: 10px; border-radius: 6px; border:1px solid #ccc; margin:5px; }
+    button { cursor:pointer; background:#2f3640; color:white; border:none; }
+    button:hover { background:#40739e; }
+    .section { margin-top:20px; }
+    ul#files li { margin-bottom: 5px; }
+    a { text-decoration:none; color:#40739e; }
   </style>
 </head>
 <body>
-  <h2>Local Link - LAN Sharing</h2>
+  <div class="container">
+    <h1>Local Link - LAN Sharing</h1>
 
-  <div>
-    <label>Room: <input id="room" value="lobby"></label>
-    <button id="joinBtn">Join Room</button>
-  </div>
+    <div class="section">
+      <label>Room: <input id="room" value="lobby"></label>
+      <button id="joinBtn">Join Room</button>
+    </div>
 
-  <div id="chatContainer">
-    <div id="messages"></div>
-    <input id="name" placeholder="Your name" />
-    <input id="message" placeholder="Type message..." />
-    <button id="sendBtn">Send Message</button>
-  </div>
+    <div class="section" id="chatSection">
+      <h2>Chat</h2>
+      <div id="messages"></div>
+      <input id="name" placeholder="Your name" />
+      <input id="message" placeholder="Type your message..." />
+      <button id="sendBtn">Send</button>
+    </div>
 
-  <div id="fileContainer">
-    <h3>Share File</h3>
-    <input type="file" id="fileInput" />
-    <button id="uploadBtn">Upload File</button>
-    <ul id="files"></ul>
+    <div class="section" id="fileSection">
+      <h2>Share File</h2>
+      <input type="file" id="fileInput" />
+      <button id="uploadBtn">Upload File</button>
+      <ul id="files"></ul>
+    </div>
   </div>
 
   <script src="https://cdn.socket.io/4.8.0/socket.io.min.js"></script>
