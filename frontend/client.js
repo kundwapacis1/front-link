@@ -1,9 +1,12 @@
-// Automatically use the backend URL where frontend is hosted
-// If you deploy frontend and backend separately, set the backend URL here
-const BACKEND_URL = 'https://pacis-link.onrender.com'; // <- your Render backend URL
+// --- Auto-detect backend URL (Render will provide the host)
+const BACKEND_URL = window.location.hostname.includes('localhost') 
+  ? 'http://localhost:5000'
+  : 'https://pacis-link.onrender.com'; // replace with your Render URL
 
+// --- Socket.io setup
 const socket = io(BACKEND_URL);
 
+// --- DOM elements
 const roomInput = document.getElementById('room');
 const joinBtn = document.getElementById('joinBtn');
 const messagesDiv = document.getElementById('messages');
@@ -18,7 +21,7 @@ const fileList = document.getElementById('files');
 let currentRoom = 'lobby';
 
 // --- Join room
-joinBtn.onclick = async () => {
+joinBtn.addEventListener('click', async () => {
   currentRoom = roomInput.value || 'lobby';
   socket.emit('join-room', currentRoom);
 
@@ -33,34 +36,38 @@ joinBtn.onclick = async () => {
   const files = await resFiles.json();
   fileList.innerHTML = '';
   files.forEach(f => addFile(f.originalName, `${BACKEND_URL}${f.url}`));
-};
+});
 
 // --- Send text
-sendBtn.onclick = async () => {
+sendBtn.addEventListener('click', async () => {
   const sender = nameInput.value || 'Anonymous';
-  const message = messageInput.value.trim();
-  if (!message) return;
+  const content = messageInput.value.trim();
+  if (!content) return;
 
-  socket.emit('chat-message', { room: currentRoom, sender, message });
-  addMessage('You', message);
+  // Emit socket message
+  socket.emit('chat-message', { room: currentRoom, sender, message: content });
+
+  // Show locally
+  addMessage('You', content);
   messageInput.value = '';
 
+  // Save to backend
   await fetch(`${BACKEND_URL}/api/text/send`, {
     method: 'POST',
-    headers: { 'content-type': 'application/json' },
-    body: JSON.stringify({ room: currentRoom, sender, content: message })
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ room: currentRoom, sender, content })
   });
-};
+});
 
 // --- Receive text
-socket.on('chat-message', (data) => {
+socket.on('chat-message', data => {
   addMessage(data.sender, data.message);
 });
 
 // --- Upload file
-uploadBtn.onclick = async () => {
+uploadBtn.addEventListener('click', async () => {
   if (!fileInput.files.length) return alert('Select a file');
-
+  
   const form = new FormData();
   form.append('file', fileInput.files[0]);
 
@@ -70,13 +77,17 @@ uploadBtn.onclick = async () => {
   });
 
   const fileMeta = await res.json();
+
+  // Emit socket event
   socket.emit('file-shared', { room: currentRoom, ...fileMeta });
+
+  // Show in UI
   addFile(fileMeta.originalName, `${BACKEND_URL}${fileMeta.url}`);
   fileInput.value = '';
-};
+});
 
 // --- Receive file
-socket.on('file-shared', (file) => {
+socket.on('file-shared', file => {
   addFile(file.originalName, `${BACKEND_URL}${file.url}`);
 });
 
@@ -92,7 +103,7 @@ function addFile(name, url) {
   const a = document.createElement('a');
   a.href = url;
   a.textContent = name;
-  a.download = name; // This lets users download the file
+  a.download = name; // force download when clicked
   li.appendChild(a);
   fileList.prepend(li);
 }
