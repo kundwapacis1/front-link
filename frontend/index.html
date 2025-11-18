@@ -1,54 +1,132 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Local Link - Chat & File Sharing</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Local Link</title>
 
   <style>
-    body { font-family: Arial, sans-serif; background: #e2e8f0; margin:0; padding:0; }
-    .container {
-      max-width: 900px; margin: 30px auto; padding: 20px;
-      background: white; border-radius: 15px; 
-      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: Arial, sans-serif;
+      background: #eef1f7;
+      display: flex;
+      justify-content: center;
+      padding-top: 30px;
     }
-    h1 { text-align:center; color:#1e293b; }
 
-    input, button {
-      padding: 10px; width: 100%; margin-top: 8px;
-      border-radius: 8px; border:1px solid #cbd5e1;
+    .container {
+      width: 95%;
+      max-width: 900px;
+      background: white;
+      padding: 25px;
+      border-radius: 12px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.1);
     }
-    button { background:#3b82f6; color:white; border:none; cursor:pointer; }
-    button:hover { background:#2563eb; }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 20px;
+      color: #333;
+    }
+
+    input, button, textarea {
+      width: 100%;
+      padding: 10px;
+      margin: 5px 0;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      font-size: 14px;
+    }
+
+    button {
+      background-color: #4a90e2;
+      color: white;
+      cursor: pointer;
+      border: none;
+      transition: 0.2s;
+    }
+
+    button:hover {
+      background-color: #357ab8;
+    }
 
     #messages {
-      border:1px solid #cbd5e1; background:#f1f5f9;
-      height:350px; overflow-y:auto; border-radius:10px; padding:10px;
-      margin-top: 15px;
+      background: #f7f8fc;
+      border: 1px solid #ddd;
+      padding: 15px;
+      height: 300px;
+      overflow-y: auto;
+      border-radius: 10px;
+      margin-bottom: 15px;
     }
 
     .message {
-      padding:10px; margin-bottom:10px; max-width:70%;
-      border-radius:12px;
+      padding: 6px 10px;
+      margin: 6px 0;
+      background: #e9eef7;
+      border-radius: 6px;
+      font-size: 14px;
     }
-    .self { background:#3b82f6; color:white; margin-left:auto; }
-    .other { background:white; border:1px solid #cbd5e1; }
 
-    .file-list a {
-      padding:8px; background:#e0f2fe; border-radius:6px;
-      display:block; text-decoration:none; margin-bottom:5px;
-      color:#1d4ed8;
+    .self {
+      background: #d1e7ff;
+      text-align: right;
     }
-    .file-list a:hover { background:#bae6fd; }
 
-    /* QR Modal */
+    .other {
+      background: #f0f0f0;
+      text-align: left;
+    }
+
+    #fileList a {
+      display: block;
+      margin-bottom: 5px;
+      color: #4a90e2;
+      text-decoration: none;
+    }
+
+    #fileList a:hover {
+      text-decoration: underline;
+    }
+
+    .share-section {
+      margin-top: 20px;
+    }
+
     #qrModal {
-      display:none; position:fixed; top:0; left:0; right:0; bottom:0;
-      background:rgba(0,0,0,0.6); justify-content:center; align-items:center;
+      display: none;
+      position: fixed;
+      top:0;
+      left:0;
+      width:100%;
+      height:100%;
+      background: rgba(0,0,0,0.6);
+      justify-content: center;
+      align-items: center;
+      z-index: 10;
     }
+
     #qrBox {
-      background:white; padding:20px; border-radius:10px; text-align:center;
-      width: 300px;
+      background: white;
+      padding: 20px;
+      border-radius: 12px;
+    }
+
+    .closeQR {
+      margin-top: 10px;
+      padding: 6px 12px;
+      background: #f44336;
+      color: white;
+      border: none;
+      cursor: pointer;
+      border-radius: 6px;
+    }
+
+    @media (max-width:600px){
+      .container { padding: 15px; }
+      #messages { height: 200px; }
     }
   </style>
 </head>
@@ -56,48 +134,39 @@
   <div class="container">
     <h1>Local Link Chat & File Sharing</h1>
 
-    <!-- Join Room -->
-    <input type="text" id="room" placeholder="Enter room name...">
-    <input type="text" id="username" placeholder="Enter your name...">
-    <button id="joinRoomBtn">Join Room</button>
-
-    <!-- Chat Panel -->
     <div id="messages"></div>
 
-    <input type="text" id="messageInput" placeholder="Type your message..." disabled>
-    <button id="sendBtn" disabled>Send Message</button>
+    <input type="text" id="room" placeholder="Room name" />
+    <input type="text" id="username" placeholder="Your name" />
+    <button id="joinRoomBtn">Join Room</button>
 
-    <!-- File Upload -->
-    <input type="file" id="fileInput" disabled>
+    <textarea id="messageInput" placeholder="Type your message..." rows="3" disabled></textarea>
+    <button id="sendBtn" disabled>Send</button>
+
+    <input type="file" id="fileInput" disabled />
     <button id="uploadBtn" disabled>Upload File</button>
 
-    <h3>Files in Room:</h3>
-    <div id="fileList" class="file-list"></div>
+    <div class="section-title">Files in Room:</div>
+    <div id="fileList"></div>
 
-    <!-- Link / QR -->
-    <h3>Share Room:</h3>
-    <button id="generateLinkBtn" disabled>Generate Shareable Link</button>
-    <button id="generateQRBtn" disabled>Generate QR Code</button>
-
-    <p id="shareLink" style="margin-top:10px; font-weight:bold;"></p>
+    <div class="share-section">
+      <button id="generateLinkBtn" disabled>Generate Shareable Link</button>
+      <p id="shareLink"></p>
+      <button id="generateQRBtn" disabled>Generate QR Code</button>
+    </div>
   </div>
 
   <!-- QR Modal -->
   <div id="qrModal">
     <div id="qrBox">
-      <h3>Scan to Join Room</h3>
       <div id="qrcode"></div>
-      <button onclick="document.getElementById('qrModal').style.display='none'">Close</button>
+      <button class="closeQR" onclick="document.getElementById('qrModal').style.display='none'">Close</button>
     </div>
   </div>
 
-  <!-- Socket.io -->
+  <!-- Scripts -->
   <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
-
-  <!-- QR Code Library -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-
-  <!-- Client Script -->
   <script src="client.js"></script>
 </body>
 </html>
