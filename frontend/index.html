@@ -3,105 +3,52 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Local Link</title>
-  <link rel="stylesheet" href="styles.css">
-  <style>
-    body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: #e2e8f0;
-      margin: 0;
-      padding: 0;
-    }
+  <title>Local Link - Chat & File Sharing</title>
 
+  <style>
+    body { font-family: Arial, sans-serif; background: #e2e8f0; margin:0; padding:0; }
     .container {
-      max-width: 900px;
-      margin: 30px auto;
-      padding: 20px;
-      background: #fff;
-      border-radius: 15px;
+      max-width: 900px; margin: 30px auto; padding: 20px;
+      background: white; border-radius: 15px; 
       box-shadow: 0 4px 15px rgba(0,0,0,0.1);
     }
-
-    h1 {
-      text-align: center;
-      color: #1e293b;
-      margin-bottom: 20px;
-    }
-
-    .join-section,
-    .chat-section,
-    .file-section {
-      margin-bottom: 20px;
-    }
+    h1 { text-align:center; color:#1e293b; }
 
     input, button {
-      padding: 10px 15px;
-      margin-top: 5px;
-      border-radius: 8px;
-      border: 1px solid #cbd5e1;
-      font-size: 16px;
+      padding: 10px; width: 100%; margin-top: 8px;
+      border-radius: 8px; border:1px solid #cbd5e1;
     }
-
-    button {
-      background-color: #3b82f6;
-      color: #fff;
-      border: none;
-      cursor: pointer;
-      transition: 0.3s;
-    }
-
-    button:hover {
-      background-color: #2563eb;
-    }
+    button { background:#3b82f6; color:white; border:none; cursor:pointer; }
+    button:hover { background:#2563eb; }
 
     #messages {
-      border: 1px solid #cbd5e1;
-      padding: 10px;
-      height: 350px;
-      overflow-y: auto;
-      background: #f1f5f9;
-      border-radius: 10px;
-      margin-bottom: 10px;
+      border:1px solid #cbd5e1; background:#f1f5f9;
+      height:350px; overflow-y:auto; border-radius:10px; padding:10px;
+      margin-top: 15px;
     }
 
     .message {
-      margin-bottom: 10px;
-      padding: 8px 12px;
-      border-radius: 15px;
-      max-width: 70%;
-      word-wrap: break-word;
+      padding:10px; margin-bottom:10px; max-width:70%;
+      border-radius:12px;
     }
-
-    .message.self {
-      background-color: #3b82f6;
-      color: white;
-      align-self: flex-end;
-    }
-
-    .message.other {
-      background-color: #f1f5f9;
-      color: #1e293b;
-      align-self: flex-start;
-    }
-
-    #messages .message-container {
-      display: flex;
-      flex-direction: column;
-    }
+    .self { background:#3b82f6; color:white; margin-left:auto; }
+    .other { background:white; border:1px solid #cbd5e1; }
 
     .file-list a {
-      display: block;
-      margin-bottom: 5px;
-      padding: 6px 10px;
-      border-radius: 8px;
-      text-decoration: none;
-      color: #1d4ed8;
-      background-color: #e0f2fe;
-      transition: 0.3s;
+      padding:8px; background:#e0f2fe; border-radius:6px;
+      display:block; text-decoration:none; margin-bottom:5px;
+      color:#1d4ed8;
     }
+    .file-list a:hover { background:#bae6fd; }
 
-    .file-list a:hover {
-      background-color: #bae6fd;
+    /* QR Modal */
+    #qrModal {
+      display:none; position:fixed; top:0; left:0; right:0; bottom:0;
+      background:rgba(0,0,0,0.6); justify-content:center; align-items:center;
+    }
+    #qrBox {
+      background:white; padding:20px; border-radius:10px; text-align:center;
+      width: 300px;
     }
   </style>
 </head>
@@ -109,27 +56,48 @@
   <div class="container">
     <h1>Local Link Chat & File Sharing</h1>
 
-    <div class="join-section">
-      <input type="text" id="room" placeholder="Room name" />
-      <input type="text" id="username" placeholder="Your name" />
-      <button id="joinRoomBtn">Join Room</button>
-    </div>
+    <!-- Join Room -->
+    <input type="text" id="room" placeholder="Enter room name...">
+    <input type="text" id="username" placeholder="Enter your name...">
+    <button id="joinRoomBtn">Join Room</button>
 
-    <div class="chat-section">
-      <div id="messages" class="message-container"></div>
-      <input type="text" id="messageInput" placeholder="Type your message..." disabled />
-      <button id="sendBtn" disabled>Send</button>
-    </div>
+    <!-- Chat Panel -->
+    <div id="messages"></div>
 
-    <div class="file-section">
-      <input type="file" id="fileInput" disabled />
-      <button id="uploadBtn" disabled>Upload File</button>
-      <h3>Files in Room:</h3>
-      <div id="fileList" class="file-list"></div>
+    <input type="text" id="messageInput" placeholder="Type your message..." disabled>
+    <button id="sendBtn" disabled>Send Message</button>
+
+    <!-- File Upload -->
+    <input type="file" id="fileInput" disabled>
+    <button id="uploadBtn" disabled>Upload File</button>
+
+    <h3>Files in Room:</h3>
+    <div id="fileList" class="file-list"></div>
+
+    <!-- Link / QR -->
+    <h3>Share Room:</h3>
+    <button id="generateLinkBtn" disabled>Generate Shareable Link</button>
+    <button id="generateQRBtn" disabled>Generate QR Code</button>
+
+    <p id="shareLink" style="margin-top:10px; font-weight:bold;"></p>
+  </div>
+
+  <!-- QR Modal -->
+  <div id="qrModal">
+    <div id="qrBox">
+      <h3>Scan to Join Room</h3>
+      <div id="qrcode"></div>
+      <button onclick="document.getElementById('qrModal').style.display='none'">Close</button>
     </div>
   </div>
 
+  <!-- Socket.io -->
   <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+
+  <!-- QR Code Library -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
+  <!-- Client Script -->
   <script src="client.js"></script>
 </body>
 </html>

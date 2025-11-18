@@ -1,178 +1,10 @@
-// // --- Auto-detect backend URL (Render will provide the host)
-// const BACKEND_URL = window.location.hostname.includes('localhost') 
-//   ? 'http://localhost:5000'
-//   : 'https://pacis-link.onrender.com'; // replace with your Render URL
-
-// // --- Socket.io setup
-// const socket = io(BACKEND_URL);
-
-// // --- DOM elements
-// const roomInput = document.getElementById('room');
-// const joinBtn = document.getElementById('joinBtn');
-// const messagesDiv = document.getElementById('messages');
-// const sendBtn = document.getElementById('sendBtn');
-// const nameInput = document.getElementById('name');
-// const messageInput = document.getElementById('message');
-
-// const fileInput = document.getElementById('fileInput');
-// const uploadBtn = document.getElementById('uploadBtn');
-// const fileList = document.getElementById('files');
-
-// let currentRoom = 'lobby';
-
-// // --- Join room
-// joinBtn.addEventListener('click', async () => {
-//   currentRoom = roomInput.value || 'lobby';
-//   socket.emit('join-room', currentRoom);
-
-//   // Load previous messages
-//   const resText = await fetch(`${BACKEND_URL}/api/text/list?room=${currentRoom}`);
-//   const texts = await resText.json();
-//   messagesDiv.innerHTML = '';
-//   texts.reverse().forEach(t => addMessage(t.sender, t.content));
-
-//   // Load files
-//   const resFiles = await fetch(`${BACKEND_URL}/api/files`);
-//   const files = await resFiles.json();
-//   fileList.innerHTML = '';
-//   files.forEach(f => addFile(f.originalName, `${BACKEND_URL}${f.url}`));
-// });
-
-// // --- Send text
-// sendBtn.addEventListener('click', async () => {
-//   const sender = nameInput.value || 'Anonymous';
-//   const content = messageInput.value.trim();
-//   if (!content) return;
-
-//   // Emit socket message
-//   socket.emit('chat-message', { room: currentRoom, sender, message: content });
-
-//   // Show locally
-//   addMessage('You', content);
-//   messageInput.value = '';
-
-//   // Save to backend
-//   await fetch(`${BACKEND_URL}/api/text/send`, {
-//     method: 'POST',
-//     headers: { 'Content-Type': 'application/json' },
-//     body: JSON.stringify({ room: currentRoom, sender, content })
-//   });
-// });
-
-// // --- Receive text
-// socket.on('chat-message', data => {
-//   addMessage(data.sender, data.message);
-// });
-
-// // --- Upload file
-// uploadBtn.addEventListener('click', async () => {
-//   if (!fileInput.files.length) return alert('Select a file');
-  
-//   const form = new FormData();
-//   form.append('file', fileInput.files[0]);
-
-//   const res = await fetch(`${BACKEND_URL}/api/files/upload`, {
-//     method: 'POST',
-//     body: form
-//   });
-
-//   const fileMeta = await res.json();
-
-//   // Emit socket event
-//   socket.emit('file-shared', { room: currentRoom, ...fileMeta });
-
-//   // Show in UI
-//   addFile(fileMeta.originalName, `${BACKEND_URL}${fileMeta.url}`);
-//   fileInput.value = '';
-// });
-
-// // --- Receive file
-// socket.on('file-shared', file => {
-//   addFile(file.originalName, `${BACKEND_URL}${file.url}`);
-// });
-
-// // --- Helper functions
-// function addMessage(sender, message) {
-//   const div = document.createElement('div');
-//   div.textContent = `${sender}: ${message}`;
-//   messagesDiv.prepend(div);
-// }
-
-// function addFile(name, url) {
-//   const li = document.createElement('li');
-//   const a = document.createElement('a');
-//   a.href = url;
-//   a.textContent = name;
-//   a.download = name; // force download when clicked
-//   li.appendChild(a);
-//   fileList.prepend(li);
-// }
-// function getQueryParam(name) {
-//   const params = new URLSearchParams(window.location.search);
-//   return params.get(name);
-// }
-
-// // on load
-// const urlRoom = getQueryParam('room');
-// if (urlRoom) {
-//   roomInput.value = urlRoom;
-//   joinRoom(urlRoom); // implement joinRoom to perform join actions
-// }
-// document.getElementById('shareBtn').addEventListener('click', () => {
-//   const room = (roomInput.value || 'lobby').trim();
-//   const link = `${window.location.origin}${window.location.pathname}?room=${encodeURIComponent(room)}`;
-//   document.getElementById('shareLink').value = link;
-//   document.getElementById('shareBox').style.display = 'block';
-//   QRCode.toCanvas(document.getElementById('qrCanvas'), link, err => { if (err) console.error(err); });
-// });
-
-
-
-// // peer to peer
-// let pc = null;
-// let dataChannel = null;
-// async function startP2P(isCaller) {
-//   pc = new RTCPeerConnection();
-//   pc.ondatachannel = e => setupDataChannel(e.channel);
-//   pc.onicecandidate = e => { if (e.candidate) socket.emit('webrtc-candidate', { room: currentRoom, candidate: e.candidate }); };
-
-//   if (isCaller) {
-//     dataChannel = pc.createDataChannel('filetube');
-//     setupDataChannel(dataChannel);
-//     const offer = await pc.createOffer();
-//     await pc.setLocalDescription(offer);
-//     socket.emit('webrtc-offer', { room: currentRoom, offer });
-//   }
-// }
-
-// function setupDataChannel(dc){
-//   dc.onopen = () => console.log('DC open');
-//   dc.onmessage = (ev) => handleIncomingData(ev.data);
-// }
-
-// socket.on('webrtc-offer', async ({offer}) => {
-//   if (!pc) startP2P(false);
-//   await pc.setRemoteDescription(offer);
-//   const ans = await pc.createAnswer();
-//   await pc.setLocalDescription(ans);
-//   socket.emit('webrtc-answer', { room: currentRoom, answer: ans });
-// });
-
-// socket.on('webrtc-answer', async ({answer}) => {
-//   await pc.setRemoteDescription(answer);
-// });
-
-// socket.on('webrtc-candidate', ({candidate}) => {
-//   pc.addIceCandidate(candidate);
-// });
 // Replace this with your backend URL deployed on Render
-// Replace this with your backend URL deployed on Render
-// Replace this with your backend URL deployed on Render
-const BACKEND_URL = "https://pacis-link.onrender.com"; 
+const BACKEND_URL = "https://pacis-link.onrender.com";
 
 const socket = io(BACKEND_URL);
 
 let currentRoom = null;
+let username = null;
 
 // Elements
 const roomInput = document.getElementById("room");
@@ -182,53 +14,65 @@ const messageInput = document.getElementById("messageInput");
 const sendBtn = document.getElementById("sendBtn");
 const fileInput = document.getElementById("fileInput");
 const uploadBtn = document.getElementById("uploadBtn");
+
 const messagesDiv = document.getElementById("messages");
 const fileListDiv = document.getElementById("fileList");
+const shareLinkP = document.getElementById("shareLink");
+const generateLinkBtn = document.getElementById("generateLinkBtn");
+const generateQRBtn = document.getElementById("generateQRBtn");
 
-// --- Join room
+const qrModal = document.getElementById("qrModal");
+const qrBox = document.getElementById("qrcode");
+
+// FIX DOUBLE MESSAGE — only listen once
+socket.removeAllListeners("chat-message");
+socket.removeAllListeners("file-shared");
+
+// ---------------------- JOIN ROOM ----------------------
 joinBtn.addEventListener("click", () => {
   const room = roomInput.value.trim();
-  const username = usernameInput.value.trim();
-  if (!room || !username) return alert("Enter room and name");
+  const usr = usernameInput.value.trim();
+
+  if (!room || !usr) return alert("Enter room and name");
 
   currentRoom = room;
+  username = usr;
+
   socket.emit("join-room", room);
 
   messageInput.disabled = false;
   sendBtn.disabled = false;
   fileInput.disabled = false;
   uploadBtn.disabled = false;
+  generateLinkBtn.disabled = false;
+  generateQRBtn.disabled = false;
+
+  messagesDiv.innerHTML = "";
+  appendMessage("You joined room: " + room, true);
 
   fetchFiles();
-  appendMessage(`✅ You joined room: ${room}`);
 });
 
-// --- Send chat message
+// ---------------------- SEND MESSAGE ----------------------
 sendBtn.addEventListener("click", () => {
   const text = messageInput.value.trim();
   if (!text) return;
 
-  const data = {
-    room: currentRoom,
-    username: usernameInput.value,
-    message: text
-  };
+  const data = { room: currentRoom, username, message: text };
 
   socket.emit("chat-message", data);
+  appendMessage(username + ": " + text, true);
+
   messageInput.value = "";
 });
 
-// --- Receive chat messages
-socket.on("chat-message", data => {
-  appendMessage(`${data.username}: ${data.message}`);
+// ---------------------- RECEIVE MESSAGE ----------------------
+socket.on("chat-message", (data) => {
+  if (data.username === username) return; // Prevent duplicates
+  appendMessage(`${data.username}: ${data.message}`, false);
 });
 
-// --- File shared via socket
-socket.on("file-shared", data => {
-  appendFile(data.filename, data.fileId);
-});
-
-// --- Upload file
+// ---------------------- FILE UPLOAD ----------------------
 uploadBtn.addEventListener("click", async () => {
   const file = fileInput.files[0];
   if (!file) return;
@@ -240,18 +84,19 @@ uploadBtn.addEventListener("click", async () => {
   try {
     const res = await fetch(`${BACKEND_URL}/api/files/upload`, {
       method: "POST",
-      body: formData,
+      body: formData
     });
 
     const result = await res.json();
+
     if (result.success) {
       appendFile(result.filename, result.fileId);
+
       socket.emit("file-shared", {
         room: currentRoom,
         filename: result.filename,
         fileId: result.fileId
       });
-      fileInput.value = "";
     } else {
       alert("Upload failed");
     }
@@ -260,33 +105,107 @@ uploadBtn.addEventListener("click", async () => {
   }
 });
 
-// --- Append message to UI
-function appendMessage(msg) {
-  const div = document.createElement("div");
-  div.className = "message";
-  div.textContent = msg;
-  messagesDiv.appendChild(div);
-  messagesDiv.scrollTop = messagesDiv.scrollHeight;
-}
+// ---------------------- RECEIVE FILE ----------------------
+socket.on("file-shared", (data) => {
+  appendFile(data.filename, data.fileId);
+});
 
-// --- Append file link to UI
-function appendFile(name, id) {
-  const a = document.createElement("a");
-  a.href = `${BACKEND_URL}/api/files/download/${id}`;
-  a.textContent = name;
-  a.download = name;
-  a.style.display = "block";
-  fileListDiv.appendChild(a);
-}
-
-// --- Fetch existing files in room
+// ---------------------- FETCH FILES ----------------------
 async function fetchFiles() {
   try {
     const res = await fetch(`${BACKEND_URL}/api/files/room/${currentRoom}`);
     const files = await res.json();
+
     fileListDiv.innerHTML = "";
+
     files.forEach(f => appendFile(f.filename, f._id));
   } catch (err) {
     console.error(err);
   }
 }
+
+// ---------------------- APPEND MESSAGE ----------------------
+function appendMessage(text, self = false) {
+  const div = document.createElement("div");
+  div.classList.add("message");
+
+  if (self) div.classList.add("self");
+  else div.classList.add("other");
+
+  div.textContent = text;
+
+  messagesDiv.appendChild(div);
+  messagesDiv.scrollTop = messagesDiv.scrollHeight;
+}
+
+// ---------------------- APPEND FILE ----------------------
+function appendFile(name, id) {
+  const link = document.createElement("a");
+  link.href = `${BACKEND_URL}/api/files/download/${id}`;
+  link.textContent = name;
+  link.download = name;
+  fileListDiv.appendChild(link);
+}
+
+// ---------------------- GENERATE LINK ----------------------
+generateLinkBtn.addEventListener("click", () => {
+  const url = `${window.location.origin}?room=${currentRoom}`;
+  shareLinkP.textContent = "Share this link: " + url;
+});
+
+// ---------------------- GENERATE QR ----------------------
+generateQRBtn.addEventListener("click", () => {
+  const url = `${window.location.origin}?room=${currentRoom}`;
+
+  qrModal.style.display = "flex";
+  qrBox.innerHTML = ""; // clear previous QR
+
+  new QRCode(qrBox, {
+    text: url,
+    width: 220,
+    height: 220
+  });
+});
+// ---------------------- AUTO JOIN IF LINK HAS ?room=XYZ ----------------------
+window.addEventListener("load", () => {
+  const params = new URLSearchParams(window.location.search);
+  const autoRoom = params.get("room");
+
+  if (autoRoom) {
+    roomInput.value = autoRoom;
+
+    // Pre-fill message area
+    appendMessage("Room detected from link: " + autoRoom);
+    appendMessage("Enter your name and click JOIN to enter automatically.");
+
+    // Auto scroll
+    messagesDiv.scrollTop = messagesDiv.scrollHeight;
+
+    // Optionally auto join fully if username already stored
+    const savedName = localStorage.getItem("saved_username");
+    if (savedName) {
+      usernameInput.value = savedName;
+      joinRoomAutomatically(autoRoom, savedName);
+    }
+  }
+});
+
+// Optional helper for auto join
+function joinRoomAutomatically(room, usr) {
+  currentRoom = room;
+  username = usr;
+
+  socket.emit("join-room", room);
+
+  messageInput.disabled = false;
+  sendBtn.disabled = false;
+  fileInput.disabled = false;
+  uploadBtn.disabled = false;
+  generateLinkBtn.disabled = false;
+  generateQRBtn.disabled = false;
+
+  messagesDiv.innerHTML = "";
+  appendMessage("Auto-joined room: " + room);
+  fetchFiles();
+}
+
